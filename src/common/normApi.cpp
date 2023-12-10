@@ -415,7 +415,10 @@ void NormInstance::PurgeObjectNotifications(NormObjectHandle objectHandle)
         if (objectHandle == next->event.object)
         {
             // "Release" the previously-retained object handle
-            ((NormObject*)objectHandle)->Release();
+            if (((NormObject*)objectHandle)->Release())
+            {
+                next->event.object = NORM_OBJECT_INVALID;
+            }
             // Remove from queue and put in pool
             notify_queue.Remove(*next);
             notify_pool.Append(*next);
@@ -424,7 +427,10 @@ void NormInstance::PurgeObjectNotifications(NormObjectHandle objectHandle)
     if ((NULL != previous_notification) && (objectHandle == previous_notification->event.object))
     {
         // "Release" any previously-retained object or node handle
-        ((NormObject*)(previous_notification->event.object))->Release();
+        if (((NormObject*)(previous_notification->event.object))->Release())
+        {
+            previous_notification->event.object = NORM_OBJECT_INVALID;
+        }
         notify_pool.Append(*previous_notification);   
         previous_notification = NULL;   
     }
@@ -442,7 +448,10 @@ void NormInstance::PurgeNodeNotifications(NormNodeHandle nodeHandle)
         if (nodeHandle == next->event.sender)
         {
             // "Release" the previously-retained object handle
-            ((NormNode*)nodeHandle)->Release();
+            if (((NormNode*)nodeHandle)->Release())
+            {
+                next->event.sender = NORM_NODE_INVALID;
+            }
             // Remove this notification from queue and return to pool
             notify_queue.Remove(*next);
             notify_pool.Append(*next);
@@ -452,9 +461,19 @@ void NormInstance::PurgeNodeNotifications(NormNodeHandle nodeHandle)
     {
         // "Release" any previously-retained object or node handle
         if (NORM_OBJECT_INVALID != previous_notification->event.object)
-            ((NormObject*)(previous_notification->event.object))->Release();
+        {
+            if (((NormObject*)(previous_notification->event.object))->Release())
+            {
+                previous_notification->event.object = NORM_OBJECT_INVALID;
+            }
+        }
         else
-            ((NormNode*)(previous_notification->event.sender))->Release();
+        {
+            if (((NormNode*)(previous_notification->event.sender))->Release())
+            {
+                previous_notification->event.sender = NORM_NODE_INVALID;
+            }
+        }
         notify_pool.Append(*previous_notification);   
         previous_notification = NULL;   
     }
@@ -470,10 +489,20 @@ void NormInstance::PurgeSessionNotifications(NormSessionHandle sessionHandle)
     {
         if (next->event.session == sessionHandle)
         {
-             if (NORM_OBJECT_INVALID != next->event.object)
-                ((NormObject*)next->event.object)->Release();
+            if (NORM_OBJECT_INVALID != next->event.object)
+            {
+                if (((NormObject*)next->event.object)->Release())
+                {
+                    next->event.object = NORM_OBJECT_INVALID;
+                }
+            }
             else if (NORM_NODE_INVALID != next->event.sender)
-                ((NormNode*)next->event.sender)->Release();
+            {
+                if (((NormNode*)next->event.sender)->Release())
+                {
+                    next->event.sender = NORM_NODE_INVALID;
+                }
+            }
             // Remove this notification from queue and return to pool
             notify_queue.Remove(*next);
             notify_pool.Append(*next);
@@ -483,9 +512,19 @@ void NormInstance::PurgeSessionNotifications(NormSessionHandle sessionHandle)
     {
         // "Release" any previously-retained object or node handle
         if (NORM_OBJECT_INVALID != previous_notification->event.object)
-            ((NormObject*)(previous_notification->event.object))->Release();
+        {
+            if (((NormObject*)(previous_notification->event.object))->Release())
+            {
+                previous_notification->event.object = NORM_OBJECT_INVALID;
+            }
+        }
         else if (NORM_NODE_INVALID != previous_notification->event.sender)
-            ((NormNode*)(previous_notification->event.sender))->Release();
+        {
+            if (((NormNode*)(previous_notification->event.sender))->Release())
+            {
+                previous_notification->event.sender = NORM_NODE_INVALID;
+            }
+        }
         notify_pool.Append(*previous_notification);   
         previous_notification = NULL;   
     }
@@ -504,9 +543,19 @@ void NormInstance::PurgeNotifications(NormSessionHandle sessionHandle, NormEvent
             (next->event.type == eventType))
         {
             if (NORM_OBJECT_INVALID != next->event.object)
-                ((NormObject*)next->event.object)->Release();
+            {
+                if (((NormObject*)next->event.object)->Release())
+                {
+                    next->event.object = NORM_OBJECT_INVALID;
+                }
+            }
             else if (NORM_NODE_INVALID != next->event.sender)
-                ((NormNode*)next->event.sender)->Release();
+            {
+                if (((NormNode*)next->event.sender)->Release())
+                {
+                    next->event.sender = NORM_NODE_INVALID;
+                }
+            }
             // Remove this notification from queue and return to pool
             notify_queue.Remove(*next);
             notify_pool.Append(*next);
@@ -523,9 +572,19 @@ bool NormInstance::GetNextEvent(NormEvent* theEvent)
     {
         // "Release" any previously-retained object or node handle
         if (NORM_OBJECT_INVALID != previous_notification->event.object)
-            ((NormObject*)(previous_notification->event.object))->Release();
+        {
+            if (((NormObject*)(previous_notification->event.object))->Release())
+            {
+                previous_notification->event.object = NORM_OBJECT_INVALID;
+            }
+        }
         else if (NORM_NODE_INVALID != previous_notification->event.sender)
-            ((NormNode*)(previous_notification->event.sender))->Release();
+        {
+            if (((NormNode*)(previous_notification->event.sender))->Release())
+            {
+                previous_notification->event.sender = NORM_OBJECT_INVALID;
+            }
+        }
         notify_pool.Append(*previous_notification);   
         previous_notification = NULL;   
     }
@@ -653,9 +712,19 @@ void NormInstance::ReleasePreviousEvent()
     {
         // Release any previously-retained object or node handles
         if (NORM_OBJECT_INVALID != previous_notification->event.object)
-            ((NormObject*)(previous_notification->event.object))->Release();
+        {
+            if (((NormObject*)(previous_notification->event.object))->Release())
+            {
+                previous_notification->event.object = NORM_OBJECT_INVALID;
+            }
+        }
         else if (NORM_NODE_INVALID != previous_notification->event.sender)
-            ((NormNode*)(previous_notification->event.sender))->Release();
+        {
+            if (((NormNode*)(previous_notification->event.sender))->Release())
+            {
+                previous_notification->event.sender = NORM_NODE_INVALID;
+            }
+        }
         notify_pool.Append(*previous_notification);   
         previous_notification = NULL;   
     }
@@ -701,9 +770,19 @@ void NormInstance::Shutdown()
     {
         // Release any previously-retained object or node handles
         if (NORM_OBJECT_INVALID != previous_notification->event.object)
-            ((NormObject*)(previous_notification->event.object))->Release();
+        {
+            if (((NormObject*)(previous_notification->event.object))->Release())
+                {
+                previous_notification->event.object = NORM_OBJECT_INVALID;
+            }
+        }
         else if (NORM_NODE_INVALID != previous_notification->event.sender)
-            ((NormNode*)(previous_notification->event.sender))->Release();
+        {
+            if (((NormNode*)(previous_notification->event.sender))->Release())
+            {
+                previous_notification->event.sender = NORM_NODE_INVALID;
+            }
+        }
         notify_pool.Append(*previous_notification);   
         previous_notification = NULL;   
     }
@@ -730,9 +809,19 @@ void NormInstance::Shutdown()
                 break;
         }   
         if (NORM_OBJECT_INVALID != next->event.object)
-            ((NormObject*)(next->event.object))->Release();
+        {
+            if (((NormObject*)(next->event.object))->Release())
+            {
+                next->event.object = NORM_OBJECT_INVALID;
+            }
+        }
         else if (NORM_NODE_INVALID != next->event.sender)
-            ((NormNode*)(next->event.sender))->Release();
+        {
+            if (((NormNode*)(next->event.sender))->Release())
+            {
+                next->event.sender = NORM_NODE_INVALID;
+            }
+        }
         delete next;        
     }
     notify_pool.Destroy();

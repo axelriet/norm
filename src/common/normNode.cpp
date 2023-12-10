@@ -20,15 +20,28 @@ void NormNode::Retain()
     reference_count++;
 }  // end NormNode::Retain()
 
-void NormNode::Release()
+bool NormNode::Release()
 {
     if (reference_count)
+    {
         reference_count--;
+    }
     else
+    {
         PLOG(PL_ERROR, "NormNode::Release() releasing non-retained node?!\n");
-    if (0 == reference_count) delete this;   
-}  // end NormNode::Release()
+        //
+        // Invalid refcount is a fatal programmer error. Crash now and get it fixed.
+        //
+        __fastfail(FAST_FAIL_INVALID_REFERENCE_COUNT);
+    }
 
+    if (0 == reference_count) {
+        delete this;
+        return true;
+    }
+
+    return false;
+}  // end NormNode::Release()
 
 const NormNodeId& NormNode::LocalNodeId() const 
     {return session.LocalNodeId();}
