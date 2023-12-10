@@ -48,7 +48,7 @@ class NormObject
         
         virtual ~NormObject();
         void Retain();
-        void Release();
+        bool Release();
         unsigned int GetReferenceCount() {return reference_count;}
         
         // This must be reset after each update

@@ -29,7 +29,7 @@ class NormNode
         
         NormSession& GetSession() const {return session;}
         void Retain();
-        void Release();
+        bool Release();
         
         void SetUserData(const void* userData)
             {user_data = userData;}

@@ -48,9 +48,8 @@ void NormObject::Retain()
     if (sender) sender->Retain();
 }  // end NormObject::Retain()
 
-void NormObject::Release()
+bool NormObject::Release()
 {
-    if (sender) sender->Release();
     if (reference_count)
     {
         reference_count--;
@@ -58,8 +57,18 @@ void NormObject::Release()
     else
     {
         PLOG(PL_ERROR, "NormObject::Release() releasing non-retained object?!\n");
+        //
+        // Invalid refcount is a fatal programmer error. Crash now and get it fixed.
+        //
+        __fastfail(FAST_FAIL_INVALID_REFERENCE_COUNT);
     }
-    if (0 == reference_count) delete this;
+
+    if (0 == reference_count) {
+        delete this;
+        return true;
+    }
+
+    return false;
 }  // end NormObject::Release()
 
 // This is mainly used for debug messages
